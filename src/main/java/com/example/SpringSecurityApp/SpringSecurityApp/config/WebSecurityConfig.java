@@ -33,7 +33,7 @@ public class WebSecurityConfig {
 
         return httpSecurity.authorizeHttpRequests(
                 auth -> auth
-                        .requestMatchers("/posts").permitAll()
+                        .requestMatchers("/posts", "/auth/**").permitAll()
                         .requestMatchers("/posts/**").hasAnyRole("ADMIN")
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())
@@ -42,21 +42,21 @@ public class WebSecurityConfig {
                 .formLogin(Customizer.withDefaults()).build();
     }
 
-    @Bean
-    UserDetailsService myInMemoryUserDetailsService() {
-        UserDetails regularUser = User.withUsername("Tanishq")
-                .password(passwordEncoder()
-                        .encode("Tanishq123"))
-                .roles("USER")
-                .build();
-
-        UserDetails adminUser = User.withUsername("admin")
-                .password(passwordEncoder().encode("admin"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(regularUser, adminUser);
-    }
+//    @Bean
+//    UserDetailsService myInMemoryUserDetailsService() {
+//        UserDetails regularUser = User.withUsername("Tanishq")
+//                .password(passwordEncoder()
+//                        .encode("Tanishq123"))
+//                .roles("USER")
+//                .build();
+//
+//        UserDetails adminUser = User.withUsername("admin")
+//                .password(passwordEncoder().encode("admin"))
+//                .roles("ADMIN")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(regularUser, adminUser);
+//    }
 
     @Bean
     PasswordEncoder passwordEncoder() {

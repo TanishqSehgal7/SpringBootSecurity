@@ -1,10 +1,6 @@
 package com.example.SpringSecurityApp.SpringSecurityApp.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,8 +13,21 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    public User(Long id, String email, String password) {
+    private String name;
+
+    @Column(unique = true)
+    private String email;
+
+    @Column
+    private String password;
+
+    public User() {
+
+    }
+
+    public User(Long id, String name, String email, String password) {
         this.id = id;
+        this.name = name;
         this.email = email;
         this.password = password;
     }
@@ -42,12 +51,6 @@ public class User implements UserDetails {
     public void setPassword(String password) {
         this.password = password;
     }
-
-    @Column(unique = true)
-    private String email;
-
-    @Column
-    private String password;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
