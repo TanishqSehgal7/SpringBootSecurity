@@ -4,8 +4,8 @@ import com.example.SpringSecurityApp.SpringSecurityApp.dto.UserDto;
 import com.example.SpringSecurityApp.SpringSecurityApp.entities.User;
 import com.example.SpringSecurityApp.SpringSecurityApp.exceptions.ResourceNotFoundException;
 import com.example.SpringSecurityApp.SpringSecurityApp.repositories.UserRepository;
-import io.jsonwebtoken.security.Password;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,7 +23,7 @@ public class UserService implements UserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, ModelMapper modelMapper,PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
