@@ -5,7 +5,6 @@ import com.example.SpringSecurityApp.SpringSecurityApp.entities.User;
 import com.example.SpringSecurityApp.SpringSecurityApp.exceptions.ResourceNotFoundException;
 import com.example.SpringSecurityApp.SpringSecurityApp.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -34,6 +33,11 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User with email " +
                         username + " not found."));
+    }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() ->  new ResourceNotFoundException("User not found with id: " + userId));
     }
 
     public UserDto signUp(SignUpDto signUpDto) {

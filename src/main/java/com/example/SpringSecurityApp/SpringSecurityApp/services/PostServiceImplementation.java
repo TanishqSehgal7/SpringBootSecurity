@@ -1,13 +1,17 @@
 package com.example.SpringSecurityApp.SpringSecurityApp.services;
 import com.example.SpringSecurityApp.SpringSecurityApp.dto.PostDto;
 import com.example.SpringSecurityApp.SpringSecurityApp.entities.Post;
+import com.example.SpringSecurityApp.SpringSecurityApp.entities.User;
 import com.example.SpringSecurityApp.SpringSecurityApp.exceptions.ResourceNotFoundException;
 import com.example.SpringSecurityApp.SpringSecurityApp.repositories.PostRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class PostServiceImplementation implements PostService {
 
@@ -52,6 +56,11 @@ public class PostServiceImplementation implements PostService {
 
     @Override
     public PostDto getPostById(Long postId) {
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        System.out.println("Current Authenticated user: " + user);
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
 
