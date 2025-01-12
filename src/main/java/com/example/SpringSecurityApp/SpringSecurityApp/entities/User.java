@@ -1,12 +1,14 @@
 package com.example.SpringSecurityApp.SpringSecurityApp.entities;
 
 import jakarta.persistence.*;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
 @Entity
+@ToString
 public class User implements UserDetails {
 
     @Id
