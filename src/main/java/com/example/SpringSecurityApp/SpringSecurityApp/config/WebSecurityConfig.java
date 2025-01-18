@@ -23,20 +23,10 @@ public class WebSecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-//        return httpSecurity
-//                .csrf(csrf -> csrf.disable())
-//                .authorizeHttpRequests(
-//                        auth ->
-//                                auth.requestMatchers("/posts/**").permitAll()
-//                                .anyRequest()
-//                                .authenticated()).formLogin(Customizer.withDefaults()
-//                ).build();
-//                .formLogin("/newLogin.html")
-
-
-        return httpSecurity.authorizeHttpRequests(
+        return httpSecurity
+                .authorizeHttpRequests(
                 auth -> auth
-                        .requestMatchers("/posts", "/auth/**", "/error").permitAll()
+                        .requestMatchers("/posts/**", "/auth/**", "/error").permitAll()
 //                        .requestMatchers("/posts/**").hasAnyRole("ADMIN")
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())

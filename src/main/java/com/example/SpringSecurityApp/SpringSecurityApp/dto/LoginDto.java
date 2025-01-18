@@ -1,7 +1,10 @@
 package com.example.SpringSecurityApp.SpringSecurityApp.dto;
 
+import jakarta.persistence.Column;
+
 public class LoginDto {
 
+    @Column(unique = true)
     private String email;
     private String password;
 

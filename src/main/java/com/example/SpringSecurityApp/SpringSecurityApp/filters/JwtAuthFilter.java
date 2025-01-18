@@ -8,6 +8,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +25,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserService userService;
+    private final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
 
     @Autowired
     @Qualifier("handlerExceptionResolver")
@@ -35,38 +38,50 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
         try {
             final String requestTokenHeader = request.getHeader("Authorization");
-//        Industry standard of how the token is passed -> "Bearer {token}"
 
-            if(requestTokenHeader == null || !requestTokenHeader.startsWith("Bearer")) {
-                filterChain.doFilter(request,response);
+            // Check if Authorization header exists and starts with 'Bearer'
+            if (requestTokenHeader == null || !requestTokenHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response); // Pass the request further if no token
                 return;
             }
 
-            String token = requestTokenHeader.split("Bearer ")[1];
+            String token = requestTokenHeader.split("Bearer ")[1]; // Extract token
+            logger.info("RequestTokenHeader: {}", token);
 
             Long userId = jwtService.getUserIdFromToken(token);
+            logger.info("UserId From JwtToken: {}", userId);
 
-            if(userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 User user = userService.getUserById(userId);
 
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                        new UsernamePasswordAuthenticationToken(user, null,null);
+                // Check if the token has expired
+                if (jwtService.isTokenExpired(token)) {
+                    logger.debug("JWT is Expired for userId: {}", userId);
+                    throw new JwtException("JWT token is expired"); // Token is expired, throw an exception
+                }
 
-                usernamePasswordAuthenticationToken.setDetails(request);
+                // Create authentication token if JWT is valid
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                authenticationToken.setDetails(request);
 
-                // put user into SpringSecurityContextHolder
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                // Set authentication to Spring Security context
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
 
-            filterChain.doFilter(request,response); // -> passed the flow to the next filter in the chain
-            // which is the UsernamePasswordAuthenticationFilter which checks authentication in SecurityContextHolder
-
-            // now we can do something with the response after it is received back from the next filter chain
+            filterChain.doFilter(request, response); // Continue filter chain
+        } catch (JwtException e) {
+            // Log the error if an exception occurs
+            logger.error("JWT Exception occurred: ", e);
+            // Pass the exception to the handler to return a response
+            handlerExceptionResolver.resolveException(request, response, null, e);
         } catch (Exception e) {
-            handlerExceptionResolver.resolveException(request,response,null,e);
+            // General exception catch block to ensure any other unexpected issues are logged
+            logger.error("Exception in JwtAuthFilter: ", e);
+            handlerExceptionResolver.resolveException(request, response, null, e);
         }
     }
 }
+

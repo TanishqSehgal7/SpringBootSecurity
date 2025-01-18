@@ -3,10 +3,13 @@ package com.example.SpringSecurityApp.SpringSecurityApp.controllers;
 import com.example.SpringSecurityApp.SpringSecurityApp.dto.LoginDto;
 import com.example.SpringSecurityApp.SpringSecurityApp.dto.SignUpDto;
 import com.example.SpringSecurityApp.SpringSecurityApp.dto.UserDto;
+import com.example.SpringSecurityApp.SpringSecurityApp.entities.Session;
 import com.example.SpringSecurityApp.SpringSecurityApp.services.AuthService;
+import com.example.SpringSecurityApp.SpringSecurityApp.services.SessionService;
 import com.example.SpringSecurityApp.SpringSecurityApp.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,15 +35,23 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
-        String token = authService.login(loginDto);
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
 
-        Cookie cookie = new Cookie("token", token);
-        cookie.setHttpOnly(true);
+        ResponseEntity<?> loginResponseEntity = authService.login(loginDto);
+
+        if(loginResponseEntity.getStatusCode().is2xxSuccessful()) {
+            Session session = (Session) loginResponseEntity.getBody();
+            String token = session.getToken();
+
+            Cookie cookie = new Cookie("token", token);
+            cookie.setHttpOnly(true);
 //        cookie.setSecure(true); -> use this only with https
 
-        response.addCookie(cookie);
+            response.addCookie(cookie);
 
-        return ResponseEntity.ok(token);
+            return new ResponseEntity<>(session, HttpStatus.CREATED);
+        }
+
+        return loginResponseEntity;
     }
 }

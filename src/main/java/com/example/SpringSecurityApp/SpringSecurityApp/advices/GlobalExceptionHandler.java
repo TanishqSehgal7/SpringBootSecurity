@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiError> handleAutnenticationException(AuthenticationException exception) {
+    public ResponseEntity<ApiError> handleAuthenticationException(AuthenticationException exception) {
         ApiError apiError = new ApiError(exception.getMessage(),
                 HttpStatus.UNAUTHORIZED);
 
@@ -29,6 +29,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ApiError> handleJwtException(JwtException exception) {
+        ApiError apiError = new ApiError(exception.getMessage(),
+                HttpStatus.UNAUTHORIZED);
+
+        return new ResponseEntity<>(apiError, apiError.getStatusCode());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException exception) {
         ApiError apiError = new ApiError(exception.getMessage(),
                 HttpStatus.UNAUTHORIZED);
 
