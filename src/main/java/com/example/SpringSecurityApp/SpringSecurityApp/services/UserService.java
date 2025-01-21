@@ -5,6 +5,8 @@ import com.example.SpringSecurityApp.SpringSecurityApp.entities.User;
 import com.example.SpringSecurityApp.SpringSecurityApp.exceptions.ResourceNotFoundException;
 import com.example.SpringSecurityApp.SpringSecurityApp.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,6 +21,8 @@ public class UserService implements UserDetailsService {
 
     private UserRepository userRepository;
     private ModelMapper modelMapper;
+
+    private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final PasswordEncoder passwordEncoder;
 
@@ -47,10 +51,19 @@ public class UserService implements UserDetailsService {
         }
 
         User userToCreate = modelMapper.map(signUpDto, User.class);
+
+        logger.debug("User To Create: " + userToCreate.getName());
+
         userToCreate.setPassword(passwordEncoder.encode(userToCreate.getPassword()));
 
         User savedUser = userRepository.save(userToCreate);
 
-        return modelMapper.map(savedUser, UserDto.class);
+        logger.debug("Saved User: " + savedUser.getName());
+
+        UserDto signUpResponse = modelMapper.map(savedUser, UserDto.class);
+
+        logger.debug("SignUp Response: " + signUpResponse.getName());
+
+        return signUpResponse;
     }
 }

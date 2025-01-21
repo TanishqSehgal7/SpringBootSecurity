@@ -54,6 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             logger.info("UserId From JwtToken: {}", userId);
 
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
                 User user = userService.getUserById(userId);
 
                 // Check if the token has expired
@@ -70,7 +71,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 // Set authentication to Spring Security context
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
-
             filterChain.doFilter(request, response); // Continue filter chain
         } catch (JwtException e) {
             // Log the error if an exception occurs
